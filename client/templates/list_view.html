@@ -1,0 +1,36 @@
+<template name="ListView">
+  
+  <div class="list-view">
+    <div class="form-group">
+      <input type="text" class="search-box form-control" placeholder="Search">
+    </div>
+
+    <table class="table">
+      <tr>
+
+        {{#each fields}}
+          <th>{{getFieldLable this}}</th>
+        {{/each}}
+      </tr>
+
+      {{#each objects}}
+        <tr>
+            {{#each fields}}
+              <td>{{field .. this}}</td>
+            {{/each}}
+        </tr>
+      {{/each}}
+
+    </table>
+
+    {{#if Template.subscriptionsReady}}
+      {{#if hasMoreObjects}}
+        <a class="load-more" href="#">Load More</a>
+      {{/if}}
+    {{else}}
+      <div class="loading">{{>spinner}}</div>
+    {{/if}}
+
+  </div>
+  
+</template>

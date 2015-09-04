@@ -1,0 +1,104 @@
+Template.ListView.events({
+  'click .load-more': function (event, instance) {
+    event.preventDefault();
+
+    var limit = instance.limit.get();
+
+    // increase limit by 5 and update it
+    limit += 5;
+    instance.limit.set(limit);
+
+    return false;
+    
+  },
+  'input .search-box' : function(event, instance){
+    var value = $(event.target).val();
+    instance.searchQuery = value;
+    instance.limit.set(0);
+    instance.limit.set(15);
+  }
+});
+
+
+
+Template.ListView.helpers({
+  // the objects cursor
+  objects: function () {
+    console.log(Template.instance().limit.get());
+    return Template.instance().objects();
+  },
+  // are there more objects to show?
+  hasMoreObjects: function () {
+    return Template.instance().objects().count() >= Template.instance().limit.get();
+  },
+  field : function(object, name){
+    return object[name];
+  },
+  fields : function(){
+    if(Template.instance().data.fields != undefined){
+      return Template.instance().data.fields.split(",");
+    }
+    if(Template.instance().data.exclude != undefined){
+      var exclude = Template.instance().data.exclude.split(",");
+      return _.filter(Template.instance().data.collection.simpleSchema().objectKeys(), function(key){
+        return  exclude.indexOf(key) == -1;
+      });
+    }
+    return Template.instance().data.collection.simpleSchema().objectKeys();
+  },
+  getFieldLable : function(name){
+    return Template.instance().data.collection.simpleSchema()._schema[name].label;
+  }
+});
+
+Template.ListView.created = function () {
+
+  // 1. Initialization
+  var instance = this;
+
+  var pubName = "select_" + instance.data.collection._name;
+
+  
+  // initialize the reactive variables
+  instance.loaded = new ReactiveVar(0);
+  instance.limit = new ReactiveVar(15);
+  instance.searchQuery = "";
+
+  instance.autorun(function () {
+
+    // get the limit
+    var limit = instance.limit.get();
+    var searchQuery = instance.searchQuery;
+
+    console.log("Asking for "+limit+" objects…")
+
+    // subscribe to the objects publication
+    var subscription = instance.subscribe(pubName, limit, searchQuery);
+
+    // if subscription is ready, set limit to newLimit
+    if (subscription.ready()) {
+      console.log("> Received "+limit+" objects. \n\n")
+      instance.loaded.set(limit);
+    } else {
+      console.log("> Subscription is not ready yet. \n\n");
+    }
+  });
+
+  instance.objects = function() {
+    var queryList = [];
+    _.each(instance.data.collection.simpleSchema().objectKeys(), function(key){
+        var o = {};
+        o[key] = {$regex : instance.searchQuery}
+        queryList.push(o)
+        
+    });    
+   return instance.data.collection.find({$or : queryList}, {limit: instance.loaded.get()});
+  }
+
+  instance.autorun(function(){
+    var objects_count = instance.objects().length;
+    window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
+  });
+
+  // ...
+}
