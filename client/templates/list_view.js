@@ -4,8 +4,8 @@ Template.ListView.events({
 
     var limit = instance.limit.get();
 
-    // increase limit by 5 and update it
-    limit += 5;
+    // increase limit  and update it
+    limit += instance.increase;
     instance.limit.set(limit);
 
     return false;
@@ -15,7 +15,7 @@ Template.ListView.events({
     var value = $(event.target).val();
     instance.searchQuery = value;
     instance.limit.set(0);
-    instance.limit.set(15);
+    instance.limit.set(instance.startLimit);
   }
 });
 
@@ -59,9 +59,12 @@ Template.ListView.created = function () {
   var pubName = "select_" + instance.data.collection._name;
 
   
+  instance.startLimit = instance.data.limit || 15;
+  instance.increase = instance.data.increase || 5;
+
   // initialize the reactive variables
   instance.loaded = new ReactiveVar(0);
-  instance.limit = new ReactiveVar(15);
+  instance.limit = new ReactiveVar(instance.startLimit);
   instance.searchQuery = "";
 
   instance.autorun(function () {
