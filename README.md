@@ -64,8 +64,10 @@ In your client code make a new helper whiche returns the collection object to ma
       });
     }
 
-In your template code use the ListView template where you want and pass it the collection object
-    {{> ListView collection=data  }}
+In your template code use the ListView template where you want and pass it the collection object.
 
+    <template name="listViewExample">
+      {{> ListView collection=data  }}
+    </template>
 
 
