@@ -11,13 +11,13 @@ Simple Widget to generate a List View for your Meteor Collection based on Simple
 * Pub/Sub Logic is done for you, all you need is to add this line to your server code.
     
 
-    ListView.publish(Collection);
+> ListView.publish(Collection);
 
 Where Collection is your Meteor Collection Object.
 
 * Then add this to your template
     
 
-    {{> ListView collection=data  }}
+> {{> ListView collection=data  }}
 
 Where data is a template helper which return the Meteor Collection Object.
