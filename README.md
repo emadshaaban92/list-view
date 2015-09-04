@@ -1,6 +1,6 @@
 # DESCRIPTION
 Simple Widget to generate a List View for your Meteor Collection based on Simple Schema.
-It's inspired from the example in this [Blog Post](https://www.discovermeteor.com/blog/template-level-subscriptions/), Thanks @SachaG
+It's inspired from the example in this [Blog Post](https://www.discovermeteor.com/blog/template-level-subscriptions/), Thanks @SachaG .
 
 
 
