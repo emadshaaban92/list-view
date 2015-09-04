@@ -23,8 +23,9 @@ Where data is a template helper which returns the Meteor Collection Object.
 ## Example
 Say you have a collection for Customers.
 
-    Customers = new Mongo.Collection("customers");
-
+```javascript
+Customers = new Mongo.Collection("customers");
+```
 You have to define a schema for your customer object like this.
 
     Customers.attachSchema(new SimpleSchema({
