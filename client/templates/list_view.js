@@ -66,6 +66,12 @@ Template.ListView.helpers({
       return "";
     }
     return Template.instance().data.settings.fieldClass(object, fieldName);
+  },
+  virtualColumns : function(){
+    if(Template.instance().data.settings.virtualColumns == undefined){
+      return [];
+    }
+    return Template.instance().data.settings.virtualColumns;
   }
 });
 

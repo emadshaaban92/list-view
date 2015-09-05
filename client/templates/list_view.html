@@ -12,6 +12,11 @@
             {{#each fields}}
               <th>{{getFieldLable this}}</th>
             {{/each}}
+
+            {{#each virtualColumns}}
+              <th>{{this.label}}</th>
+            {{/each}}
+
           </tr>
         </thead>
 
@@ -21,6 +26,10 @@
             <tr class={{rowClass}}>
                 {{#each fields}}
                   <td class={{fieldClass .. this}}>{{field .. this}}</td>
+                {{/each}}
+
+                {{#each virtualColumns}}
+                  <td class={{fieldClass .. this.name}}>{{this.fn ..}}</td>
                 {{/each}}
             </tr>
           {{/each}}
