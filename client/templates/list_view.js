@@ -48,6 +48,24 @@ Template.ListView.helpers({
   },
   getFieldLable : function(name){
     return Template.instance().data.collection.simpleSchema()._schema[name].label;
+  },
+  rowClass : function(){
+    if(Template.instance().data.settings.rowClass == undefined){
+      return "";
+    }
+    return Template.instance().data.settings.rowClass(this);
+  },
+  tableClass : function(){
+    if (Template.instance().data.settings.tableClass == undefined){
+       return "table table-stripped table-hover";
+    }
+    return Template.instance().data.settings.tableClass();
+  },
+  fieldClass : function(object, fieldName){
+    if(Template.instance().data.settings.fieldClass == undefined){
+      return "";
+    }
+    return Template.instance().data.settings.fieldClass(object, fieldName);
   }
 });
 

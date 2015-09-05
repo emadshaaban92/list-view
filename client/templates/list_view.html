@@ -5,24 +5,29 @@
       <input type="text" class="search-box form-control" placeholder="Search">
     </div>
 
-    <table class="table">
-      <tr>
+      <table class={{tableClass}}>
 
-        {{#each fields}}
-          <th>{{getFieldLable this}}</th>
-        {{/each}}
-      </tr>
-
-      {{#each objects}}
-        <tr>
+        <thead>
+          <tr>
             {{#each fields}}
-              <td>{{field .. this}}</td>
+              <th>{{getFieldLable this}}</th>
             {{/each}}
-        </tr>
-      {{/each}}
+          </tr>
+        </thead>
 
-    </table>
+        <tbody>
 
+          {{#each objects}}
+            <tr class={{rowClass}}>
+                {{#each fields}}
+                  <td class={{fieldClass .. this}}>{{field .. this}}</td>
+                {{/each}}
+            </tr>
+          {{/each}}
+        </tbody>
+
+      </table>
+   
     {{#if Template.subscriptionsReady}}
       {{#if hasMoreObjects}}
         <a class="load-more" href="#">Load More</a>
