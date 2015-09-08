@@ -1,6 +1,6 @@
 ListView = {};
 ListView.publish = function(collection){
-    var pubName = "select_" + collection._name;
+    var pubName = "list_" + collection._name;
     Meteor.publish(pubName, function (l, sQ) {
         var limit = l || 15;
         var searchQuery = sQ || "";

@@ -80,7 +80,7 @@ Template.ListView.created = function () {
   // 1. Initialization
   var instance = this;
 
-  var pubName = "select_" + instance.data.collection._name;
+  var pubName = "list_" + instance.data.collection._name;
 
   
   instance.startLimit = instance.data.limit || 15;
