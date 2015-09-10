@@ -17,6 +17,7 @@ Package.onUse(function(api) {
   api.use('jquery');
   api.use('templating');
   api.use('reactive-var');
+  api.use('iron:router@1.0.9');
   api.use('twbs:bootstrap@3.3.5');
   api.use('aldeed:collection2@2.5.0');
   api.use('sacha:spin@2.3.1');

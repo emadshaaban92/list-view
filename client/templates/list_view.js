@@ -1,9 +1,13 @@
+var routeChanged =  new ReactiveVar(0);
+var n = 0;
+
 Template.ListView.events({
   'click .load-more': function (event, instance) {
     event.preventDefault();
 
     var limit = instance.limit.get();
 
+    console.log(instance);
     // increase limit  and update it
     limit += instance.increase;
     instance.limit.set(limit);
@@ -58,11 +62,16 @@ Template.ListView.helpers({
   },
   getFieldLable : function(name){
     var data = Template.instance().data;
+    //console.log(data);
     if(data.settings.hasOwnProperty('fields')){
-      var field = _.filter(data.settings.fields, function(field){
+      var fields = _.filter(data.settings.fields, function(field){
         return field.name == name;
-      })[0];
-      return field.label;
+      });
+      if(fields.length > 0){
+        return fields[0].label;
+      }else{
+        return "";
+      }
     }
     return data.collection.simpleSchema()._schema[name].label;
   },
@@ -96,10 +105,9 @@ Template.ListView.created = function () {
 
   // 1. Initialization
   var instance = this;
-
   var pubName = "list_" + instance.data.collection._name;
 
-  
+    
   instance.startLimit = instance.data.limit || 15;
   instance.increase = instance.data.increase || 5;
 
@@ -108,10 +116,21 @@ Template.ListView.created = function () {
   instance.limit = new ReactiveVar(instance.startLimit);
   instance.searchQuery = "";
 
+
   instance.autorun(function () {
+    var pubName = "list_" + instance.data.collection._name;
+
+    console.log(instance);
+    console.log(Template.instance());
+    console.log(pubName);
+
+    //check for route changing
+    console.log(routeChanged.get());
+    console.log(" Change = " + n);
 
     // get the limit
     var limit = instance.limit.get();
+    
     var searchQuery = instance.searchQuery;
     var fields = [];
     if(instance.data.settings.hasOwnProperty('fields')){
@@ -133,32 +152,43 @@ Template.ListView.created = function () {
     } else {
       console.log("> Subscription is not ready yet. \n\n");
     }
+  
+    
   });
 
   instance.objects = function() {
-    var queryList = [];
-    if(instance.data.settings.hasOwnProperty('fields')){
-      _.each(instance.data.settings.fields, function(field){
-        var o = {};
-        o[field.name] = {$regex : instance.searchQuery};
-        queryList.push(o);
-      });
-    }else{
-        _.each(instance.data.collection.simpleSchema().objectKeys(), function(key){
-            var o = {};
-            o[key] = {$regex : instance.searchQuery}
-            queryList.push(o)
-            
+      var queryList = [];
+      if(instance.data.settings.hasOwnProperty('fields')){
+        _.each(instance.data.settings.fields, function(field){
+          var o = {};
+          o[field.name] = {$regex : instance.searchQuery};
+          queryList.push(o);
         });
+      }else{
+          _.each(instance.data.collection.simpleSchema().objectKeys(), function(key){
+              var o = {};
+              o[key] = {$regex : instance.searchQuery}
+              queryList.push(o)
+              
+          });
+      }
+      
+     return instance.data.collection.find({$or : queryList}, {limit: instance.loaded.get()});
     }
-    
-   return instance.data.collection.find({$or : queryList}, {limit: instance.loaded.get()});
-  }
 
   instance.autorun(function(){
-    var objects_count = instance.objects().length;
-    window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
-  });
+      var objects_count = instance.objects().length;
+      window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
+    });
+  
 
   // ...
 }
+
+
+Router.onAfterAction(function() {
+    setTimeout(function(){ 
+      n += 1;
+      routeChanged.set(n); 
+    }, 1);
+});
