@@ -35,19 +35,36 @@ Template.ListView.helpers({
     return object[name];
   },
   fields : function(){
-    if(Template.instance().data.fields != undefined){
-      return Template.instance().data.fields.split(",");
+    var data = Template.instance().data;
+    if(data.fields != undefined){
+      return data.fields.split(",");
     }
-    if(Template.instance().data.exclude != undefined){
-      var exclude = Template.instance().data.exclude.split(",");
-      return _.filter(Template.instance().data.collection.simpleSchema().objectKeys(), function(key){
+    if(data.settings.hasOwnProperty('fields')){
+      return _.map(data.settings.fields, function(field){
+        return field.name;
+      });
+    }
+    if(!data.collection.hasOwnProperty('simpleSchema')){
+      console.log("You must either include fields in your settings or use simple schema for your collection");
+      return [];
+    }
+    if(data.exclude != undefined){
+      var exclude = data.exclude.split(",");
+      return _.filter(data.collection.simpleSchema().objectKeys(), function(key){
         return  exclude.indexOf(key) == -1;
       });
     }
-    return Template.instance().data.collection.simpleSchema().objectKeys();
+    return data.collection.simpleSchema().objectKeys();
   },
   getFieldLable : function(name){
-    return Template.instance().data.collection.simpleSchema()._schema[name].label;
+    var data = Template.instance().data;
+    if(data.settings.hasOwnProperty('fields')){
+      var field = _.filter(data.settings.fields, function(field){
+        return field.name == name;
+      })[0];
+      return field.label;
+    }
+    return data.collection.simpleSchema()._schema[name].label;
   },
   rowClass : function(){
     if(Template.instance().data.settings.rowClass == undefined){
@@ -96,11 +113,18 @@ Template.ListView.created = function () {
     // get the limit
     var limit = instance.limit.get();
     var searchQuery = instance.searchQuery;
+    var fields = [];
+    if(instance.data.settings.hasOwnProperty('fields')){
+      _.each(instance.data.settings.fields, function(field){
+        fields.push(field.name);
+      });
+    }
+
 
     console.log("Asking for "+limit+" objects…")
 
     // subscribe to the objects publication
-    var subscription = instance.subscribe(pubName, limit, searchQuery);
+    var subscription = instance.subscribe(pubName, limit, searchQuery, fields);
 
     // if subscription is ready, set limit to newLimit
     if (subscription.ready()) {
@@ -113,12 +137,21 @@ Template.ListView.created = function () {
 
   instance.objects = function() {
     var queryList = [];
-    _.each(instance.data.collection.simpleSchema().objectKeys(), function(key){
+    if(instance.data.settings.hasOwnProperty('fields')){
+      _.each(instance.data.settings.fields, function(field){
         var o = {};
-        o[key] = {$regex : instance.searchQuery}
-        queryList.push(o)
-        
-    });    
+        o[field.name] = {$regex : instance.searchQuery};
+        queryList.push(o);
+      });
+    }else{
+        _.each(instance.data.collection.simpleSchema().objectKeys(), function(key){
+            var o = {};
+            o[key] = {$regex : instance.searchQuery}
+            queryList.push(o)
+            
+        });
+    }
+    
    return instance.data.collection.find({$or : queryList}, {limit: instance.loaded.get()});
   }
 
