@@ -1,7 +1,23 @@
 ListView = {};
-ListView.publish = function(collection){
+ListView.publish = function(collection, foreignKeys){
     var pubName = "list_" + collection._name;
-    Meteor.publish(pubName, function (l, sQ, fields) {
+
+    var children = [];
+    _.each(foreignKeys, function(key){
+        var child = {
+            find : function(object){
+                if(key.hasOwnProperty('relatedName')){
+                    var query = {};
+                    query[key.relatedName] = object[key.name];
+                    return key.collection.find(query);
+                }
+                return key.collection.find(object[key.name]);
+            }
+        }
+        children.push(child);
+    });
+
+    Meteor.publishComposite(pubName, function (l, sQ, fields) {
         var limit = l || 15;
         var searchQuery = sQ || "";
 
@@ -22,7 +38,12 @@ ListView.publish = function(collection){
             }); 
         }
         
-        return collection.find({$or : queryList}, {limit: limit});
+        return {
+            find : function(){
+            return collection.find({$or : queryList}, {limit: limit});
+            },
+            children : children,
+        }
     
     });
 }
