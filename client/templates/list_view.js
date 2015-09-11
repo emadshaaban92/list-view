@@ -189,6 +189,8 @@ Template.ListView.created = function () {
 Router.onAfterAction(function() {
     setTimeout(function(){ 
       n += 1;
-      routeChanged.set(n); 
+      routeChanged.set(n);
+      $('.search-box').val("");
+      $('.search-box').trigger('input');
     }, 1);
 });
