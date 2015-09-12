@@ -40,7 +40,7 @@ ListView.publish = function(collection, foreignKeys){
         
         return {
             find : function(){
-            return collection.find({$or : queryList}, {limit: limit});
+            return collection.find({$or : queryList}, {limit: limit, sort: { _id: -1 }});
             },
             children : children,
         }

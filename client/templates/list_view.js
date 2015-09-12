@@ -173,7 +173,7 @@ Template.ListView.created = function () {
           });
       }
       
-     return instance.data.collection.find({$or : queryList}, {limit: instance.loaded.get()});
+     return instance.data.collection.find({$or : queryList}, {limit: instance.loaded.get(), sort: { _id : -1 }});
     }
 
   instance.autorun(function(){
