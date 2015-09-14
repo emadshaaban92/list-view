@@ -1,9 +1,32 @@
 ListView = {};
-ListView.publish = function(collection, foreignKeys){
+ListView.publications = {};
+ListView.registerPublication = function(collection, _children){
     var pubName = "list_" + collection._name;
+    var children = _children || [];
+    if(ListView.publications.hasOwnProperty(pubName)){
+        var oldChildren = ListView.publications[pubName].children || [];
+        var updatedChildren = oldChildren.concat(children);
+        ListView.publications[pubName].children = updatedChildren;
+        
+    }else{
+        ListView.publications[pubName] = {
+            collection : collection,
+            children : children
+        }
+    }
+    
+}
 
+ListView.publishAll = function(){
+    _.each(ListView.publications, function(pub, pubName){
+        ListView.publish(pub.collection, pub.children, pubName);
+    })
+}
+
+ListView.publish = function(collection, _children, _pubName){
+    var pubName = _pubName || "list_" + collection._name;
     var children = [];
-    _.each(foreignKeys, function(key){
+    _.each(_children, function(key){
         var child = {
             find : function(object){
                 if(key.hasOwnProperty('relatedName')){
