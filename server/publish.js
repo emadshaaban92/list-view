@@ -1,6 +1,6 @@
 ListView = {};
 ListView.publications = {};
-ListView.registerPublication = function(collection, _children){
+ListView.registerPublication = function(collection, _children, sortKey){
     var pubName = "list_" + collection._name;
     var children = _children || [];
     if(ListView.publications.hasOwnProperty(pubName)){
@@ -8,10 +8,12 @@ ListView.registerPublication = function(collection, _children){
         var updatedChildren = oldChildren.concat(children);
         ListView.publications[pubName].children = updatedChildren;
         
+        ListView.publications[pubName].sortKey = sortKey || ListView.publications[pubName].sortKey;
     }else{
         ListView.publications[pubName] = {
             collection : collection,
-            children : children
+            children : children,
+            sortKey : sortKey || '_id',
         }
     }
     
@@ -19,11 +21,11 @@ ListView.registerPublication = function(collection, _children){
 
 ListView.publishAll = function(){
     _.each(ListView.publications, function(pub, pubName){
-        ListView.publish(pub.collection, pub.children, pubName);
+        ListView.publish(pub.collection, pub.children, pubName, pub.sortKey);
     })
 }
 
-ListView.publish = function(collection, _children, _pubName){
+ListView.publish = function(collection, _children, _pubName, sortKey){
     var pubName = _pubName || "list_" + collection._name;
     var children = [];
     _.each(_children, function(key){
@@ -63,7 +65,9 @@ ListView.publish = function(collection, _children, _pubName){
         
         return {
             find : function(){
-            return collection.find({$or : queryList}, {limit: limit, sort: { _id: -1 }});
+                var sortObj = {};
+                sortObj[sortKey] = -1;
+                return collection.find({$or : queryList}, {limit: limit, sort: sortObj});
             },
             children : children,
         }
