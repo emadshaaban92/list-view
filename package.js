@@ -30,7 +30,7 @@ Package.onUse(function(api) {
   api.addFiles('client/templates/list_view.js', ['client']);
   api.addFiles('server/publish.js' , ['server']);
 
-  api.export('ListView');
+  api.export('ListView', ['server']);
 });
 
 Package.onTest(function(api) {
